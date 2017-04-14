@@ -1,9 +1,7 @@
 # -*- coding:utf-8 -*-
-import urllib2
-import re
 import sys
 from MySqlDBMgr import MySqlDBMgr
-from NetHelper import NetHelper
+from NetHelperCookie import NetHelperCookie
 from Parser import Parser
 
 tags = [u'小说', u'散文', u'历史', u'爱情', u'管理', u'编程', u'生活', u'心理']
@@ -12,7 +10,7 @@ tags = [u'小说', u'散文', u'历史', u'爱情', u'管理', u'编程', u'生�
 class SpiderMain:
 
     mySqlDBMgr = MySqlDBMgr()
-    netHelper = NetHelper()
+    netHelper = NetHelperCookie()
     parser = Parser()
 
     def __init__(self):
@@ -45,7 +43,7 @@ class SpiderMain:
         try:
             while self.tagIndex < 8:
                 while self.start < 100 * 20:
-                    print '开始抓取 ' + tags[self.tagIndex] + '第 ' + str(self.start / 20 + 1) + ' 页图书'
+                    print '开始抓取', tags[self.tagIndex], '第', self.start / 20 + 1, '页图书'
                     URL = 'https://book.douban.com/tag/' + tags[self.tagIndex] + '?start=' + str(self.start)
                     page = self.netHelper.GetPage(URL)
                     if page is None:
@@ -53,7 +51,6 @@ class SpiderMain:
                         continue
                     subjectIdSet = self.parser.ParseSubjectId(page)
                     for subjectId in subjectIdSet:
-                        print subjectId
                         book = self.mySqlDBMgr.FindBookBySubjectId(subjectId)
                         if book is not None:
                             bookId = book.id
