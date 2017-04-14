@@ -4,7 +4,8 @@ from MySqlDBMgr import MySqlDBMgr
 from NetHelperCookie import NetHelperCookie
 from Parser import Parser
 
-tags = [u'小说', u'散文', u'历史', u'爱情', u'管理', u'编程', u'生活', u'心理']
+tags = [u'小说', u'散文', u'历史', u'爱情', u'管理', u'编程', u'生活', u'心理', u'美食',
+    u'教育', '励志', u'数学', u'设计', u'军事', u'经济', u'文学', u'诗歌', u'传记']
 
 
 class SpiderMain:
@@ -41,15 +42,21 @@ class SpiderMain:
 
     def GetBook(self):
         try:
-            while self.tagIndex < 8:
-                while self.start < 100 * 20:
+            while self.tagIndex < 18:
+                while self.start < 50 * 20:
                     print '开始抓取', tags[self.tagIndex], '第', self.start / 20 + 1, '页图书'
                     URL = 'https://book.douban.com/tag/' + tags[self.tagIndex] + '?start=' + str(self.start)
                     page = self.netHelper.GetPage(URL)
+                    file = open('book.txt', 'w')
+                    file.write(page)
+                    file.close()
                     if page is None:
                         self.start += 20
                         continue
                     subjectIdSet = self.parser.ParseSubjectId(page)
+                    if subjectIdSet is None:
+                        self.start += 20
+                        continue
                     for subjectId in subjectIdSet:
                         book = self.mySqlDBMgr.FindBookBySubjectId(subjectId)
                         if book is not None:

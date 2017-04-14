@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 import re
 import sys
+from bs4 import BeautifulSoup  
 from BookInfo import Book
 
 
@@ -9,8 +10,10 @@ class Parser:
     def __init__(self):
         reload(sys)
         sys.setdefaultencoding('utf-8')
-        self.subjectIdPattern = re.compile(u'<li.*?class="subject-item">.*?<div.*?class="info">.*?'
-            + u'<h2.*?class="">.*?<a.*?subject_id:\'(.*?)\'.*?>.*?', re.S)
+        self.subjectListPattern = re.compile(
+            u'<ul *?class="subject-list">(.*?)</ul>', re.S)
+        self.subjectIdPattern = re.compile(
+            u'<a *?class="nbg".*?subject_id:\'(.*?)\'.*?>', re.S)
         self.infoPattern = re.compile(
             u'<div[^>]id="info".*?>(.*?)</div>', re.S)
         self.titlePattern = re.compile(
@@ -89,11 +92,16 @@ class Parser:
             print e
 
     def ParseSubjectId(self, page):
+        subjectIdSet = set()
         try:
-            bookInfos = re.findall(self.subjectIdPattern, page)
-            subjectIdSet = set()
-            for bookInfo in bookInfos:
-                subjectIdSet.add(bookInfo.strip())
-            return subjectIdSet
+            soup = BeautifulSoup(page, 'lxml')
+            subjectItems = soup.select('.subject-item')
+            for subjectItem in subjectItems:
+                subjectId = re.search(self.subjectIdPattern, str(subjectItem))
+                if subjectId is not None:
+                    subjectIdSet.add(subjectId.group(1).strip())
         except Exception, e:
             print e
+        finally:
+            return subjectIdSet
+
