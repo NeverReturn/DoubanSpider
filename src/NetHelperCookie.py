@@ -25,7 +25,7 @@ class NetHelperCookie(object):
         page = None
         self.count += 1
         try:
-            if self.count == 100:
+            if self.count >= 10:
                 self.count = 0
                 self.cookie.clear()
             request = urllib2.Request(url=URL, headers=self.headers)
