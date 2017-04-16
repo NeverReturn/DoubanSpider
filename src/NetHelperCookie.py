@@ -8,11 +8,7 @@ import time
 
 
 class NetHelperCookie(object):
-    proxies = [
-    "114.216.227.25:808", "183.21.43.233:32312", "124.88.67.19:80", "221.216.94.77:808"
-    "61.191.173.31:08", "14.145.181.96:28357", "183.10.161.90:47447", "113.229.171.2:16217"
-    "111.155.124.70:8123", "114.101.90.15:41354", "183.153.23.121:808", "123.115.22.206:33623"
-    ]
+    proxies = list()
     def __init__(self):
         reload(sys)
         sys.setdefaultencoding('utf-8')
@@ -27,6 +23,11 @@ class NetHelperCookie(object):
         self.handler = urllib2.HTTPCookieProcessor(self.cookie)
         self.opener = urllib2.build_opener(self.handler)
         self.lastTime = 0
+        file = open('proxyIP.txt', 'rU')
+        lines = file.readlines()
+        for line in lines:
+            print 'ip: ' + line.strip()
+            self.proxies.append(line.strip())
         ssl._create_default_https_context = ssl._create_unverified_context
 
     def GetPage(self, URL):
@@ -44,10 +45,11 @@ class NetHelperCookie(object):
                 time.sleep(1)
             self.lastTime = time.time()
             print URL
-            response = self.opener.open(request)
+            response = self.opener.open(request, timeout = 5)
             print '页面抓取成功，开始分析: '
             page = response.read().decode('utf-8')
         except Exception, e:
             print '抓取失败, 具体原因: ', e
+            exit(0)
         finally:
             return page

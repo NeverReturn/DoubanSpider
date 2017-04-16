@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 import sys
 import MySqlDBConn
+import MySQLdb
 from BookInfo import Book
 
 
@@ -17,9 +18,19 @@ class MySqlDBMgr(object):
     def __del__(self):
         self.dbconn.close()
 
+    def TransferBook(self, book):
+        book.title = MySQLdb.escape_string(book.title)
+        book.author = MySQLdb.escape_string(book.author)
+        book.translator = MySQLdb.escape_string(book.translator)
+        book.pubHouse = MySQLdb.escape_string(book.pubHouse)
+        book.pubData = MySQLdb.escape_string(book.pubData)
+        return book
+
     def InsertBookInfo(self, book):
         sql = u'insert into bookinfo(title, author, translator, pubhouse, pubdata, price, isbn, subjectId)'
         sql += u' values(\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', %s, %s, %s)'
+        book = self.TransferBook(book)
+        print book.title
         temp = sql % (book.title, book.author, book.translator, book.pubHouse,
             book.pubData, book.price, book.isbn, book.subjectId)
         try:
